@@ -1,25 +1,18 @@
-import eurosFormatter from "./euroFormatter.js";
-// Add two data values to the wallet:
 
-// A variable/property dailyAllowance indicating the maximum amount that can be withdrawn per day. Set the default value to 40.
-// A variable/property dayTotalWithdrawals that holds the total amount withdrawn during the day, initially zero.
-// Add a method resetDailyAllowance(). It should reset dayTotalWithdrawals to zero. Assume that the issuer of the wallet (e.g. a bank) will call this function at the start of a new day.
+const eurosFormatter = new Intl.NumberFormat('nl-NL', {
+  style: 'currency',
+  currency: 'EUR',
+});
 
-// Add a method setDailyAllowance(newAllowance) to set/update the maximum daily allowance (dailyAllowance). Assume that the issuer of the wallet (e.g., a bank) will call this function after approving a request from the wallet owner to update the daily allowance.
-
-// Update the other methods as required to support the new functionality.
 class Wallet {
   #name;
   #cash;
-  // my Addition
-  #dailyAllowance;
-  #dayTotalWithdrawals;
+  #dailyAllowance = 40;
+  #dayTotalWithdrawals = 0; 
 
   constructor(name, cash) {
     this.#name = name;
     this.#cash = cash;
-    this.#dailyAllowance = 40;
-    this.#dayTotalWithdrawals = 0;
   }
 
   get name() {
@@ -35,8 +28,15 @@ class Wallet {
       console.log(`Insufficient funds!`);
       return 0;
     }
+    // Check if the withdrawal amount exceeds the daily allowance
+    if (amount + this.#dayTotalWithdrawals > this.#dailyAllowance) {
+      console.log(`Insufficient remaining daily allowance!`);
+      return 0;
+    }
+
 
     this.#cash -= amount;
+    this.#dayTotalWithdrawals += amount;
     return amount;
   }
 
@@ -50,28 +50,32 @@ class Wallet {
     wallet.deposit(withdrawnAmount);
   }
 
-  // my addition
-  setDailyAllowance(newAllowance) {
-    this.#dailyAllowance = newAllowance;
+  reportBalance() {
+    console.log(
+      `Name: ${this.name}, balance: ${eurosFormatter.format(
+        this.#cash
+      )}, daily allowance: ${eurosFormatter.format(
+        this.#dailyAllowance
+      )}, withdrawals today: ${eurosFormatter.format(this.#dayTotalWithdrawals)}`
+    );
   }
 
   resetDailyAllowance() {
     this.#dayTotalWithdrawals = 0;
   }
-// ---
 
-
-  reportBalance() {
-    console.log(
-      `Name: ${this.name}, balance: ${eurosFormatter.format(this.#cash)}`
-    );
+  setDailyAllowance(newAllowance) {
+    this.#dailyAllowance = newAllowance;
   }
-}
+
+};
+
+
 
 function main() {
-  const walletJack = new Wallet("Jack", 100);
-  const walletJoe = new Wallet("Joe", 10);
-  const walletJane = new Wallet("Jane", 20);
+  const walletJack = new Wallet('Jack', 100);
+  const walletJoe = new Wallet('Joe', 10);
+  const walletJane = new Wallet('Jane', 20);
 
   walletJack.transferInto(walletJoe, 50);
   walletJane.transferInto(walletJoe, 25);
@@ -79,22 +83,17 @@ function main() {
   walletJane.deposit(20);
   walletJane.transferInto(walletJoe, 25);
 
-// add-----
-  walletJack.transferInto(walletJoe, 50);
-  walletJack.setDailyAllowance(100);
-  walletJack.transferInto(walletJoe, 50);
-  // -----
-
   walletJack.reportBalance();
   walletJoe.reportBalance();
   walletJane.reportBalance();
+  walletJack.setDailyAllowance(60);
+  walletJack.withdraw(50); 
+  walletJack.withdraw(20)
+  walletJack.reportBalance();
 
-
-  //add -----
   walletJack.resetDailyAllowance();
-  walletJoe.resetDailyAllowance();
-  walletJane.resetDailyAllowance();
-  // -----
+  walletJack.withdraw(50); 
+  walletJack.reportBalance();
 }
 
 main();

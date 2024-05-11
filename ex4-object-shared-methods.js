@@ -1,13 +1,9 @@
-import eurosFormatter from './euroFormatter.js';
-// Add two data values to the wallet:
 
-// A variable/property dailyAllowance indicating the maximum amount that can be withdrawn per day. Set the default value to 40.
-// A variable/property dayTotalWithdrawals that holds the total amount withdrawn during the day, initially zero.
-// Add a method resetDailyAllowance(). It should reset dayTotalWithdrawals to zero. Assume that the issuer of the wallet (e.g. a bank) will call this function at the start of a new day.
+const eurosFormatter = new Intl.NumberFormat('nl-NL', {
+  style: 'currency',
+  currency: 'EUR',
+});
 
-// Add a method setDailyAllowance(newAllowance) to set/update the maximum daily allowance (dailyAllowance). Assume that the issuer of the wallet (e.g., a bank) will call this function after approving a request from the wallet owner to update the daily allowance.
-
-// Update the other methods as required to support the new functionality.
 function deposit(amount) {
   // add
   if (this._dayTotalWithdrawals + amount > this._dailyAllowance) {
@@ -29,7 +25,7 @@ function withdraw(amount) {
     console.log(`Daily withdrawal limit exceeded! Allowed: ${this._dailyAllowance}, Attempted: ${amount}`);
     return 0;
   }
-  // --
+  
 
   this._cash -= amount;
   this._dayTotalWithdrawals += amount;
@@ -82,6 +78,8 @@ function createWallet(name, cash = 0) {
     setDailyAllowance
   };
 }
+
+
 
 function main() {
   const walletJack = createWallet('Jack', 100);
